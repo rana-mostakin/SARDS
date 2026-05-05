@@ -1,11 +1,11 @@
-# 🤝 Contributing to SARDS
+# Contributing to SARDS
 
-Thank you for your interest in contributing! SARDS is an open-source
+Thank you for your interest in contributing. SARDS is an open-source
 satellite analytics project and welcomes contributions of all kinds.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
 - [Development Setup](#development-setup)
@@ -16,14 +16,14 @@ satellite analytics project and welcomes contributions of all kinds.
 
 ---
 
-## 🤝 Code of Conduct
+## Code of Conduct
 
 Be respectful, constructive, and inclusive. We follow the
 [Contributor Covenant](https://www.contributor-covenant.org/).
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 1. **Fork** the repository on GitHub
 2. **Clone** your fork locally:
@@ -33,12 +33,12 @@ Be respectful, constructive, and inclusive. We follow the
    ```
 3. Add the upstream remote:
    ```bash
-   git remote add upstream https://github.com/ORIGINAL_OWNER/SARDS.git
+   git remote add upstream https://github.com/rana-mostakin/SARDS.git
    ```
 
 ---
 
-## 🛠️ Development Setup
+## Development Setup
 
 ```bash
 # Create and activate virtual environment
@@ -57,7 +57,7 @@ python scripts/generate_demo_data.py
 
 ---
 
-## ✏️ Making Changes
+## Making Changes
 
 1. Create a **feature branch** from `develop`:
    ```bash
@@ -87,7 +87,7 @@ python scripts/generate_demo_data.py
 
 ---
 
-## 🧪 Testing
+## Testing
 
 - All new modules **must** have corresponding unit tests in `tests/`
 - Tests must pass before a PR will be merged
@@ -100,7 +100,7 @@ pytest tests/ --cov=src --cov-report=term-missing -v
 
 ---
 
-## 🔀 Pull Request Process
+## Pull Request Process
 
 1. Push your branch: `git push origin feature/your-feature-name`
 2. Open a Pull Request against the `develop` branch (not `main`)
@@ -113,13 +113,13 @@ PRs are merged into `develop` and then periodically released to `main`.
 
 ---
 
-## 🎨 Code Style
+## Code Style
 
 - Follow **PEP 8** with max line length of **100 characters**
 - Use **type hints** for all public function signatures
 - Write **docstrings** for all public classes and methods
 - Prefer **explicit** over implicit; **readable** over clever
-- Group imports: stdlib → third-party → local (with blank lines between)
+- Group imports: stdlib -> third-party -> local (with blank lines between)
 
 Example:
 ```python
@@ -147,11 +147,11 @@ def detect(
 
 ---
 
-## 💡 Good First Issues
+## Good First Issues
 
 Look for issues labelled [`good first issue`](../../issues?q=label%3A"good+first+issue")
 for beginner-friendly contributions.
 
 ---
 
-Thank you for helping make SARDS better! 🛰️
+Thank you for helping make SARDS better.

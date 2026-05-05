@@ -1,4 +1,4 @@
-# 📋 Changelog
+# Changelog
 
 All notable changes to SARDS are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
@@ -8,7 +8,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [1.0.0] — 2024-12-01
 
-### 🎉 Initial Release
+### Initial Release
 
 #### Added
 - **`src/image_loader.py`** — `SatelliteImage` & `ImageDataset` schema with
@@ -29,7 +29,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **`app/streamlit_app.py`** — Full interactive dashboard with 5 tabs,
   demo/upload modes, live visualisations, and download buttons
 - **`scripts/generate_demo_data.py`** — Synthetic Dhaka satellite image
-  generator (2018–2024) with urban sprawl, river shift, vegetation decline
+  generator (2018-2024) with urban sprawl, river shift, vegetation decline
 - **`main.py`** — 9-step CLI pipeline runner with verbose/quiet modes
 - **`config.yaml`** — Centralised configuration for all pipeline parameters
 - **`tests/test_pipeline.py`** — 40+ unit tests covering all modules
