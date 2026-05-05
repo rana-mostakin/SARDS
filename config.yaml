@@ -1,0 +1,120 @@
+# ============================================================
+# SARDS Configuration File
+# Satellite-Based Activity Risk Detection System
+# ============================================================
+
+# --- Project Metadata ---
+project:
+  name: "SARDS - Satellite Activity Risk Detection"
+  version: "1.0.0"
+  author: "SARDS Team"
+  description: "Satellite-based urban change and risk detection for Dhaka, Bangladesh"
+
+# --- Focus Area ---
+location:
+  name: "Dhaka, Bangladesh"
+  latitude: 23.8103
+  longitude: 90.4125
+  bbox:
+    min_lat: 23.60
+    max_lat: 24.00
+    min_lon: 90.25
+    max_lon: 90.60
+  description: >
+    Dhaka is one of the world's most densely populated cities,
+    experiencing rapid urbanization, river encroachment, and
+    climate vulnerability. Ideal for satellite-based risk monitoring.
+
+# --- Data Settings ---
+data:
+  raw_dir: "data/dhaka"
+  processed_dir: "data/processed"
+  results_dir: "results"
+  supported_formats:
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".tif"
+    - ".tiff"
+
+  # Temporal dataset: year → filename
+  timeline:
+    2018: "2018.jpg"
+    2019: "2019.jpg"
+    2020: "2020.jpg"
+    2021: "2021.jpg"
+    2022: "2022.jpg"
+    2023: "2023.jpg"
+    2024: "2024.jpg"
+
+# --- Image Processing Settings ---
+preprocessing:
+  target_size: [512, 512]     # Resize all images to this shape (W, H)
+  normalize: true              # Normalize pixel values to [0, 1]
+  grayscale: false             # Keep RGB unless change detection needs gray
+  gaussian_blur_kernel: 3      # Reduce noise before analysis
+  equalize_histogram: true     # Improve contrast for analysis
+
+# --- Change Detection Settings ---
+change_detection:
+  method: "absolute_diff"      # Options: absolute_diff, ssim, optical_flow
+  threshold: 25                # Pixel diff threshold (0–255 scale)
+  min_change_area: 50          # Minimum changed region area (px²) to count
+  morph_kernel_size: 5         # Morphological kernel for noise removal
+  highlight_color: [255, 0, 0] # Red highlight for changed regions (RGB)
+
+# --- Heatmap Settings ---
+heatmap:
+  colormap: "jet"              # Matplotlib colormap: jet, hot, viridis, inferno
+  blur_sigma: 15               # Gaussian blur for smooth heatmap
+  alpha_overlay: 0.6           # Transparency when overlaid on original image
+  save_format: "png"
+
+# --- Time-Series Settings ---
+time_series:
+  metrics:
+    - change_percentage        # % of pixels that changed significantly
+    - mean_intensity           # Average pixel intensity
+    - urban_index              # Proxy for impervious surface / built-up area
+    - ndvi_proxy               # Normalized vegetation estimate (green channel proxy)
+    - entropy                  # Image entropy as complexity measure
+  smoothing: true
+  smoothing_window: 2
+
+# --- Anomaly Detection Settings ---
+anomaly_detection:
+  method: "zscore"             # Options: zscore, iqr, isolation_forest
+  zscore_threshold: 2.0        # Flag frames with z-score above this
+  iqr_multiplier: 1.5          # IQR fence multiplier
+  contamination: 0.15          # Isolation Forest contamination rate
+
+# --- Risk Scoring Settings ---
+risk_scoring:
+  weights:
+    change_percentage: 0.35
+    heatmap_intensity: 0.30
+    temporal_trend: 0.20
+    anomaly_flag: 0.15
+  thresholds:
+    low:    [0.0,  0.30]
+    medium: [0.30, 0.60]
+    high:   [0.60, 0.80]
+    critical: [0.80, 1.0]
+  labels:
+    low: "LOW RISK"
+    medium: "MEDIUM RISK"
+    high: "HIGH RISK"
+    critical: "CRITICAL RISK"
+
+# --- Output Settings ---
+output:
+  dpi: 150
+  figure_size: [12, 6]
+  report_format: "txt"         # Options: txt, pdf (requires fpdf2)
+  save_intermediate: true
+
+# --- Logging ---
+logging:
+  level: "INFO"                # DEBUG, INFO, WARNING, ERROR
+  log_file: "results/sards.log"
+  console_output: true

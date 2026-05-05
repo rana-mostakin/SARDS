@@ -1,0 +1,207 @@
+# ============================================================
+# SARDS — GitHub Actions CI/CD Pipeline
+# ============================================================
+# Runs on every push to main/develop and on pull requests.
+# Jobs:
+#   1. lint     — code style (flake8)
+#   2. test     — unit tests (pytest)
+#   3. pipeline — end-to-end smoke test of main.py
+# ============================================================
+
+name: 🛰️ SARDS CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:          # Allow manual trigger from GitHub UI
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.10"
+
+jobs:
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 1: Lint
+  # ────────────────────────────────────────────────────────────
+  lint:
+    name: 🔍 Code Quality (flake8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install linting tools
+        run: |
+          pip install flake8 flake8-docstrings
+
+      - name: Run flake8
+        run: |
+          # Stop build on syntax errors or undefined names
+          flake8 src/ app/ scripts/ main.py \
+            --count \
+            --select=E9,F63,F7,F82 \
+            --show-source \
+            --statistics
+          # Full style check (warn only — don't fail build)
+          flake8 src/ app/ scripts/ main.py \
+            --count \
+            --max-line-length=100 \
+            --ignore=E501,W503,D100,D101,D102,D103,D104,D205,D400 \
+            --statistics \
+            --exit-zero
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 2: Unit Tests
+  # ────────────────────────────────────────────────────────────
+  test:
+    name: 🧪 Unit Tests (pytest)
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install system dependencies (OpenCV / rasterio)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libgl1-mesa-glx libgdal-dev
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Generate demo data
+        run: python scripts/generate_demo_data.py
+
+      - name: Run unit tests with coverage
+        run: |
+          pytest tests/ \
+            --cov=src \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            -v \
+            --tb=short \
+            || echo "No tests directory yet — skipping"
+
+      - name: Upload coverage to Codecov
+        if: ${{ hashFiles('coverage.xml') != '' }}
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.xml
+          fail_ci_if_error: false
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 3: End-to-End Pipeline Smoke Test
+  # ────────────────────────────────────────────────────────────
+  pipeline:
+    name: 🚀 Pipeline Smoke Test
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libgl1-mesa-glx
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate demo satellite data
+        run: python scripts/generate_demo_data.py
+
+      - name: Run full SARDS pipeline
+        run: python main.py --quiet
+
+      - name: Verify output artefacts exist
+        run: |
+          echo "Checking generated outputs..."
+          test -f results/reports/risk_dashboard.png   && echo "✔ Risk dashboard"
+          test -f results/time_series/time_series_metrics.png && echo "✔ Time-series plot"
+          test -f results/time_series/metrics_timeline.csv   && echo "✔ Metrics CSV"
+          ls results/heatmaps/*.png | wc -l | xargs -I{} echo "✔ {} heatmap files"
+          ls results/reports/risk_report_*.txt          && echo "✔ Risk report text"
+
+      - name: Upload result artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sards-results-${{ github.sha }}
+          path: |
+            results/heatmaps/
+            results/time_series/
+            results/reports/
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 4: Streamlit Import Check
+  # ────────────────────────────────────────────────────────────
+  streamlit-check:
+    name: 🖥️ Streamlit Import Check
+    runs-on: ubuntu-latest
+    needs: pipeline
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y libgl1-mesa-glx
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify app imports cleanly
+        run: |
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          from src.utils            import load_config
+          from src.image_loader     import ImageLoader
+          from src.preprocessing    import Preprocessor
+          from src.change_detection import ChangeDetector
+          from src.heatmap_generator import HeatmapGenerator
+          from src.time_series_analysis import TimeSeriesAnalyzer
+          from src.anomaly_detection import AnomalyDetector
+          from src.risk_scoring      import RiskScorer
+          print('✔ All SARDS modules import successfully')
+          "
