@@ -1,4 +1,4 @@
-# 🛰️ SARDS — Satellite-Based Activity Risk Detection System
+# SARDS — Satellite-Based Activity Risk Detection System
 
 <div align="center">
 
@@ -11,14 +11,28 @@
 **A production-grade satellite image analysis pipeline for detecting urban change,
 environmental risk, and temporal anomalies — focused on Dhaka, Bangladesh.**
 
-[Features](#features) • [Demo](#quick-start) • [Architecture](#system-architecture) •
+[Features](#features) • [Live Demo](#live-demo) • [Architecture](#system-architecture) •
 [Installation](#installation) • [Usage](#usage) • [Data Sources](#data-sources)
 
 </div>
 
 ---
 
-## 🌏 Problem Statement
+## Live Demo
+
+The dashboard is publicly deployed and requires no installation.
+
+**URL:** [https://rana-mostakin-sards-qykwz6k9stxtcu8aapphw8x.streamlit.app](https://rana-mostakin-sards-qykwz6k9stxtcu8aapphw8x.streamlit.app)
+
+Steps to use the live dashboard:
+1. Open the URL above in any browser
+2. Click **Run Full Analysis** in the sidebar
+3. Explore the five analysis tabs: Dataset Overview, Change Detection, Heatmaps, Time-Series, Risk Score
+4. Download heatmaps, CSVs, and the auto-generated risk report
+
+---
+
+## Problem Statement
 
 Rapid, unplanned urbanisation in developing-world megacities is one of the most pressing
 environmental challenges of our time. **Dhaka, Bangladesh** — population 21 million and
@@ -33,7 +47,7 @@ scalable, repeatable change monitoring at a fraction of the cost.
 
 ---
 
-## 🇧🇩 Why Dhaka?
+## Why Dhaka?
 
 | Factor | Detail |
 |---|---|
@@ -46,39 +60,39 @@ scalable, repeatable change monitoring at a fraction of the cost.
 
 ---
 
-## ✨ Features
+## Features
 
-### 1. 🔍 Spatial Change Detection
+### 1. Spatial Change Detection
 - Three detection engines: **Absolute Difference**, **SSIM**, **Optical Flow**
 - ECC-based image co-registration (corrects orbital drift)
 - Morphological noise removal
 - Region-labelled change masks with area statistics
 
-### 2. 🌡️ Heatmap Visualisation
+### 2. Heatmap Visualisation
 - Per-pair and cumulative change heatmaps
 - Six selectable colormaps (jet, inferno, hot, viridis …)
 - Transparent overlay on original imagery
 - Comparison panel: before / after / heatmap side-by-side
 
-### 3. 📈 Time-Series Analysis
+### 3. Time-Series Analysis
 - Five metrics extracted per frame: mean intensity, urban index,
   NDVI proxy, entropy, change percentage
 - Linear trend analysis with R² and p-value
 - Savitzky-Golay smoothing for trend lines
 - CSV export of all metrics
 
-### 4. 🔬 Anomaly Detection
+### 4. Anomaly Detection
 - Three methods: Z-score, IQR fence, Isolation Forest (ML)
 - Per-year composite anomaly score (0–1)
 - Annotated time-series charts with flagged years
 
-### 5. 🎯 Risk Scoring
+### 5. Risk Scoring
 - Weighted composite score from 4 evidence streams
-- Four risk levels: 🟢 LOW / 🟡 MEDIUM / 🔴 HIGH / 🚨 CRITICAL
+- Four risk levels: LOW / MEDIUM / HIGH / CRITICAL
 - Year-by-year risk breakdown
 - Automatically generated plain-text assessment report
 
-### 6. 🖥️ Streamlit Dashboard
+### 6. Streamlit Dashboard
 - Upload custom imagery OR use the built-in Dhaka demo
 - Interactive controls: detection method, colormap, threshold
 - Five analysis tabs with live rendering
@@ -86,97 +100,97 @@ scalable, repeatable change monitoring at a fraction of the cost.
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                         SARDS Pipeline                           │
-│                                                                  │
-│  ┌─────────────┐     ┌──────────────┐     ┌───────────────────┐ │
-│  │ Image Loader│────▶│ Preprocessor │────▶│ Change Detector   │ │
-│  │             │     │              │     │                   │ │
-│  │ • Dhaka demo│     │ • Resize     │     │ • AbsDiff         │ │
-│  │ • User files│     │ • CLAHE EQ   │     │ • SSIM            │ │
-│  │ • Year index│     │ • Gaussian   │     │ • Optical Flow    │ │
-│  └─────────────┘     │   blur       │     │ • ECC alignment   │ │
-│                      │ • ECC align  │     └────────┬──────────┘ │
-│                      └──────────────┘              │            │
-│                                                    ▼            │
-│  ┌─────────────┐     ┌──────────────┐     ┌───────────────────┐ │
-│  │Risk Scorer  │◀────│Anomaly Detect│◀────│Heatmap Generator  │ │
-│  │             │     │              │     │                   │ │
-│  │ • Weighted  │     │ • Z-score    │     │ • Per-pair        │ │
-│  │   composite │     │ • IQR fence  │     │ • Cumulative      │ │
-│  │ • 4 levels  │     │ • Iso-Forest │     │ • Comparison panel│ │
-│  │ • Report gen│     └──────────────┘     └───────────────────┘ │
-│  └──────┬──────┘                                                 │
-│         │          ┌──────────────────────────────────┐          │
-│         └─────────▶│ Time-Series Analyzer             │          │
-│                    │                                  │          │
-│                    │ • 5 metrics per frame            │          │
-│                    │ • OLS trend regression           │          │
-│                    │ • Change progression             │          │
-│                    └──────────────────────────────────┘          │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                  ┌───────────────────────┐
-                  │ Streamlit Dashboard   │
-                  │ • 5 interactive tabs  │
-                  │ • Upload / Demo mode  │
-                  │ • Live visualisations │
-                  │ • Report downloads    │
-                  └───────────────────────┘
++------------------------------------------------------------------+
+|                         SARDS Pipeline                           |
+|                                                                  |
+|  +-------------+     +--------------+     +-------------------+  |
+|  | Image Loader|---->| Preprocessor |---->| Change Detector   |  |
+|  |             |     |              |     |                   |  |
+|  | - Dhaka demo|     | - Resize     |     | - AbsDiff         |  |
+|  | - User files|     | - CLAHE EQ   |     | - SSIM            |  |
+|  | - Year index|     | - Gaussian   |     | - Optical Flow    |  |
+|  +-------------+     |   blur       |     | - ECC alignment   |  |
+|                      | - ECC align  |     +--------+----------+  |
+|                      +--------------+              |             |
+|                                                    v             |
+|  +-------------+     +--------------+     +-------------------+  |
+|  | Risk Scorer |<----| Anomaly Detect|<---| Heatmap Generator |  |
+|  |             |     |              |     |                   |  |
+|  | - Weighted  |     | - Z-score    |     | - Per-pair        |  |
+|  |   composite |     | - IQR fence  |     | - Cumulative      |  |
+|  | - 4 levels  |     | - Iso-Forest |     | - Comparison panel|  |
+|  | - Report gen|     +--------------+     +-------------------+  |
+|  +------+------+                                                 |
+|         |          +----------------------------------+          |
+|         +--------->| Time-Series Analyzer             |          |
+|                    |                                  |          |
+|                    | - 5 metrics per frame            |          |
+|                    | - OLS trend regression           |          |
+|                    | - Change progression             |          |
+|                    +----------------------------------+          |
++------------------------------------------------------------------+
+                              |
+                              v
+                  +-----------------------+
+                  | Streamlit Dashboard   |
+                  | - 5 interactive tabs  |
+                  | - Upload / Demo mode  |
+                  | - Live visualisations |
+                  | - Report downloads    |
+                  +-----------------------+
 ```
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 SARDS/
-│
-├── data/
-│   └── dhaka/
-│       ├── 2018.jpg         ← Satellite images (demo or real)
-│       ├── 2019.jpg
-│       ├── 2020.jpg
-│       ├── 2021.jpg
-│       ├── 2022.jpg
-│       ├── 2023.jpg
-│       └── 2024.jpg
-│
-├── src/                     ← Core library modules
-│   ├── __init__.py
-│   ├── utils.py             ← Config, logging, I/O helpers
-│   ├── image_loader.py      ← Dataset loading & SatelliteImage schema
-│   ├── preprocessing.py     ← Resize, blur, CLAHE, ECC alignment
-│   ├── change_detection.py  ← AbsDiff / SSIM / Optical Flow detection
-│   ├── heatmap_generator.py ← Heatmap generation & composite panels
-│   ├── time_series_analysis.py ← Metric extraction & trend analysis
-│   ├── anomaly_detection.py ← Z-score / IQR / Isolation Forest
-│   └── risk_scoring.py      ← Composite risk score + report
-│
-├── app/
-│   └── streamlit_app.py     ← Interactive web dashboard
-│
-├── scripts/
-│   └── generate_demo_data.py ← Synthetic Dhaka demo dataset generator
-│
-├── results/                  ← All generated outputs (auto-created)
-│   ├── heatmaps/
-│   ├── time_series/
-│   └── reports/
-│
-├── config.yaml               ← Central configuration
-├── main.py                   ← Full pipeline CLI runner
-├── requirements.txt
-└── README.md
+|
++-- data/
+|   +-- dhaka/
+|       +-- 2018.jpg         <- Satellite images (demo or real)
+|       +-- 2019.jpg
+|       +-- 2020.jpg
+|       +-- 2021.jpg
+|       +-- 2022.jpg
+|       +-- 2023.jpg
+|       +-- 2024.jpg
+|
++-- src/                     <- Core library modules
+|   +-- __init__.py
+|   +-- utils.py             <- Config, logging, I/O helpers
+|   +-- image_loader.py      <- Dataset loading & SatelliteImage schema
+|   +-- preprocessing.py     <- Resize, blur, CLAHE, ECC alignment
+|   +-- change_detection.py  <- AbsDiff / SSIM / Optical Flow detection
+|   +-- heatmap_generator.py <- Heatmap generation & composite panels
+|   +-- time_series_analysis.py <- Metric extraction & trend analysis
+|   +-- anomaly_detection.py <- Z-score / IQR / Isolation Forest
+|   +-- risk_scoring.py      <- Composite risk score + report
+|
++-- app/
+|   +-- streamlit_app.py     <- Interactive web dashboard
+|
++-- scripts/
+|   +-- generate_demo_data.py <- Synthetic Dhaka demo dataset generator
+|
++-- results/                  <- All generated outputs (auto-created)
+|   +-- heatmaps/
+|   +-- time_series/
+|   +-- reports/
+|
++-- config.yaml               <- Central configuration
++-- main.py                   <- Full pipeline CLI runner
++-- requirements.txt
++-- README.md
 ```
 
 ---
 
-## 📦 Data Sources
+## Data Sources
 
 ### Option A — Demo Dataset (Recommended, No Account Required)
 
@@ -228,7 +242,7 @@ Export.image.toDrive({image: composite, region: dhaka,
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 ### Prerequisites
 - Python 3.9 or newer
@@ -261,7 +275,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-> ⚠️ **Note:** `rasterio` may require additional system libraries.
+> **Note:** `rasterio` may require additional system libraries.
 > - **Ubuntu:** `sudo apt-get install libgdal-dev`
 > - **macOS:** `brew install gdal`
 > - **Windows:** Use the pre-built wheel from
@@ -272,11 +286,11 @@ pip install -r requirements.txt
 python scripts/generate_demo_data.py
 ```
 
-This creates `data/dhaka/2018.jpg … 2024.jpg` instantly.
+This creates `data/dhaka/2018.jpg ... 2024.jpg` instantly.
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### Run the full pipeline (CLI)
 
@@ -291,7 +305,7 @@ python main.py --quiet
 python main.py --config my_config.yaml
 ```
 
-### Launch the interactive Streamlit dashboard
+### Launch the interactive Streamlit dashboard (local)
 
 ```bash
 streamlit run app/streamlit_app.py
@@ -300,7 +314,7 @@ streamlit run app/streamlit_app.py
 Then open [http://localhost:8501](http://localhost:8501) in your browser.
 
 **Dashboard workflow:**
-1. Click **🚀 Run Full Analysis** in the sidebar
+1. Click **Run Full Analysis** in the sidebar
 2. Explore the five analysis tabs:
    - **Dataset Overview** — image timeline grid
    - **Change Detection** — before/after pairs with overlay
@@ -336,38 +350,38 @@ print(f"Regions: {result.stats['contour_count']}")
 
 ---
 
-## 📊 Sample Outputs
+## Sample Outputs
 
 ### Change Detection
-- Binary change mask with red-highlighted regions
+- Binary change mask with highlighted regions
 - Per-pair statistics: % changed pixels, number of regions, mean difference
 
 ### Heatmaps
-- Gradient colour map from low (blue/purple) → high (red/yellow) change
+- Gradient colour map from low (blue/purple) to high (red/yellow) change
 - Cumulative map stacks all years into a single risk surface
 
 ### Time-Series Metrics
 | Metric | 2018 | 2020 | 2022 | 2024 | Trend |
 |---|---|---|---|---|---|
-| Urban Index | 0.14 | 0.21 | 0.29 | 0.38 | ↑ Increasing |
-| NDVI Proxy | 0.08 | 0.05 | 0.02 | −0.01 | ↓ Decreasing |
-| Mean Intensity | 108 | 118 | 129 | 142 | ↑ Increasing |
-| Entropy | 6.8 | 7.1 | 7.3 | 7.5 | ↑ Increasing |
+| Urban Index | 0.14 | 0.21 | 0.29 | 0.38 | Increasing |
+| NDVI Proxy | 0.08 | 0.05 | 0.02 | -0.01 | Decreasing |
+| Mean Intensity | 108 | 118 | 129 | 142 | Increasing |
+| Entropy | 6.8 | 7.1 | 7.3 | 7.5 | Increasing |
 
 ### Risk Score
 ```
-OVERALL RISK SCORE : 0.6812  →  🔴 HIGH RISK
+OVERALL RISK SCORE : 0.6812  ->  HIGH RISK
 
 COMPONENT BREAKDOWN
-  change_percentage    [████████████░░░░░░░░]  0.612
-  heatmap_intensity    [██████████░░░░░░░░░░]  0.501
-  temporal_trend       [████████████████░░░░]  0.781
-  anomaly_flag         [████████░░░░░░░░░░░░]  0.425
+  change_percentage    [||||||||||||........]  0.612
+  heatmap_intensity    [||||||||||..........]  0.501
+  temporal_trend       [||||||||||||||||....]  0.781
+  anomaly_flag         [||||||||............]  0.425
 ```
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 | Feature | Description |
 |---|---|
@@ -384,7 +398,7 @@ COMPONENT BREAKDOWN
 
 ---
 
-## 🛠️ Configuration Reference
+## Configuration Reference
 
 All pipeline parameters are controlled through `config.yaml`:
 
@@ -395,7 +409,7 @@ preprocessing:
 
 change_detection:
   method: "absolute_diff"        # absolute_diff | ssim | optical_flow
-  threshold: 25                  # Pixel diff threshold (0–255)
+  threshold: 25                  # Pixel diff threshold (0-255)
 
 heatmap:
   colormap: "jet"                # Any matplotlib colormap
@@ -411,13 +425,13 @@ risk_scoring:
 
 ---
 
-## 📜 License
+## License
 
 MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 - **NASA / USGS** — Landsat open data program
 - **ESA / Copernicus** — Sentinel-2 open data program
@@ -428,5 +442,5 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-Built with ❤️ for open geospatial science · SARDS v1.0.0
+Built for open geospatial science · SARDS v1.0.0
 </div>
