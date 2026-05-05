@@ -8,7 +8,7 @@ numpy>=1.24.0
 scipy>=1.10.0
 
 # Image processing
-opencv-python>=4.8.0
+opencv-python-headless>=4.8.0
 Pillow>=10.0.0
 
 # Geospatial
